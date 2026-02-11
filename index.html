@@ -186,8 +186,10 @@
                         <div class="upload-content">
                             <i class="fa-solid fa-cloud-arrow-up"></i>
                             <h3>Upload Identity Document</h3>
-                            <p>Click to browse files</p>
+                            <p id="upload-text">Click to browse files</p>
                             <span class="file-types">PDF, JPG, PNG up to 10 MB</span>
+                            <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            <div id="upload-status"></div>
                         </div>
                     </div>
                 </div>
@@ -212,7 +214,7 @@
                         <div class="guest-row">
                             <div class="guest-header">
                                 <span>Guest 1</span>
-                                <button type="button" class="remove-btn">Remove</button>
+                                <button type="button" class="remove-btn" onclick="removeGuest(this)">Remove</button>
                             </div>
                             <div class="form-grid guest-grid">
                                 <div class="form-group">

@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     populateDateDropdowns();
     populateCountryDropdown();
     populateCountryCodes();
+    setupFileUpload();
+    setupCompletion();
 
     // 4. Initialize Time Inputs
     initializeTimeInputs();
@@ -191,6 +193,9 @@ function populateCountryDropdown() {
             const option = document.createElement('option');
             option.value = country;
             option.textContent = country;
+            if (country === "United States of America") {
+                option.selected = true;
+            }
             targetSelect.appendChild(option);
         });
     }
@@ -260,9 +265,87 @@ function populateCountryCodes() {
         const option = document.createElement('option');
         option.value = item.code;
         option.textContent = `${item.country} ${item.code}`;
+        if (item.code === "+1" && item.country === "US") {
+            option.selected = true;
+        }
         codeSelect.appendChild(option);
     });
 }
+
+function setupFileUpload() {
+    const uploadArea = document.querySelector('.upload-area');
+    const fileInput = document.getElementById('file-upload');
+    const uploadText = document.getElementById('upload-text');
+    const uploadStatus = document.getElementById('upload-status');
+
+    if (!uploadArea || !fileInput) return;
+
+    // Trigger file input on click
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            uploadFile(file);
+        }
+    });
+
+    // Drag and Drop support
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--primary-color)';
+        uploadArea.style.backgroundColor = '#FEF2F2';
+    });
+
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#D1D5DB'; // Reset to default (var(--border-color) equivalent)
+        uploadArea.style.backgroundColor = '#F9FAFB';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#D1D5DB';
+        uploadArea.style.backgroundColor = '#F9FAFB';
+
+        if (e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            uploadFile(file);
+        }
+    });
+
+    function uploadFile(file) {
+        // Show uploading state
+        uploadText.textContent = `Uploading: ${file.name}...`;
+        uploadStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+        const formData = new FormData();
+        formData.append('identity_doc', file);
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Upload failed');
+                return response.json();
+            })
+            .then(data => {
+                uploadText.textContent = `Uploaded: ${file.name}`;
+                uploadStatus.innerHTML = '<i class="fa-solid fa-check-circle" style="color: green;"></i> Success';
+                console.log('File uploaded:', data.filename);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                uploadText.textContent = 'Upload failed. Try again.';
+                uploadStatus.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color: red;"></i>';
+            });
+    }
+}
+
 
 
 

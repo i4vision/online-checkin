@@ -7,4 +7,6 @@ services:
     container_name: online_checkin
     ports:
       - "2234:80"
+    volumes:
+      - ./uploads:/app/uploads
     restart: always
