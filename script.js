@@ -464,3 +464,83 @@ function initializeTimeInputs() {
     });
 }
 
+
+function setupCompletion() {
+    const completeBtn = document.querySelector('.complete-btn');
+    if (!completeBtn) return;
+
+    completeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        // 1. Basic Validation (Required Fields)
+        let isValid = true;
+        let firstInvalidInput = null;
+
+        // Check required text inputs
+        const requiredInputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="number"]');
+        requiredInputs.forEach(input => {
+            // Skip hidden upload input
+            if (input.style.display === 'none') return;
+
+            // Check if it's in a visible section or all sections (requirements usually imply all)
+            // For now, let's just check if it's empty
+            if (!input.value.trim()) {
+                input.style.borderColor = 'red';
+                isValid = false;
+                if (!firstInvalidInput) firstInvalidInput = input;
+            } else {
+                input.style.borderColor = '#D1D5DB'; // Reset
+            }
+        });
+
+        // Listen for input to clear error
+        requiredInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                input.style.borderColor = '#D1D5DB';
+            });
+        });
+
+        // 2. Signature Validation
+        const canvas = document.getElementById('signature-pad');
+        if (isCanvasBlank(canvas)) {
+            isValid = false;
+            // Highlight signature area
+            const sigContainer = document.querySelector('.signature-pad-container');
+            if (sigContainer) sigContainer.style.border = '2px solid red';
+
+            // Scroll to signature if it's the first error or only error
+            if (!firstInvalidInput) {
+                firstInvalidInput = canvas;
+                // Open section 5 if closed
+                const section5 = document.getElementById('section-5');
+                if (section5 && !section5.classList.contains('active')) {
+                    section5.classList.add('active');
+                }
+            }
+        } else {
+            const sigContainer = document.querySelector('.signature-pad-container');
+            if (sigContainer) sigContainer.style.border = '1px solid var(--border-color)';
+        }
+
+        if (!isValid) {
+            alert('Please fill in all required fields and sign the document.');
+            if (firstInvalidInput) {
+                firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalidInput.focus();
+            }
+            return;
+        }
+
+        // 3. Success -> Redirect
+        window.location.href = 'thank-you.html';
+    });
+}
+
+// Helper to check if canvas is blank
+function isCanvasBlank(canvas) {
+    const context = canvas.getContext('2d');
+    const pixelBuffer = new Uint32Array(
+        context.getImageData(0, 0, canvas.width, canvas.height).data.buffer
+    );
+    return !pixelBuffer.some(color => color !== 0);
+}
