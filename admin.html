@@ -85,6 +85,24 @@
             opacity: 0.9;
         }
 
+        .delete-btn {
+            background-color: white;
+            color: #EF4444;
+            /* Red */
+            border: 1px solid #EF4444;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .delete-btn:hover {
+            background-color: #EF4444;
+            color: white;
+        }
+
         .empty-state {
             text-align: center;
             padding: 3rem;
@@ -147,6 +165,7 @@
                                 </div>
                                 <div class="file-actions">
                                     <a href="/uploads/${file}" download target="_blank"><i class="fa-solid fa-download"></i> Download</a>
+                                    <button class="delete-btn" onclick="deleteFile('${file}')"><i class="fa-solid fa-trash"></i> Delete</button>
                                 </div>
                             `;
                             list.appendChild(li);
@@ -156,6 +175,25 @@
                 .catch(err => {
                     console.error('Error loading files:', err);
                     document.getElementById('file-list').innerHTML = '<p style="color: red; text-align: center;">Error loading files.</p>';
+                });
+        }
+
+        function deleteFile(filename) {
+            if (!confirm(`Are you sure you want to delete "${filename}"?`)) return;
+
+            fetch(`/files/${filename}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        loadFiles(); // Refresh list
+                    } else {
+                        alert('Failed to delete file.');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error deleting file:', err);
+                    alert('Error deleting file.');
                 });
         }
 

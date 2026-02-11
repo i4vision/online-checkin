@@ -55,6 +55,26 @@ app.get('/files', (req, res) => {
     });
 });
 
+// Delete file endpoint
+app.delete('/files/:filename', (req, res) => {
+    const filename = req.params.filename;
+    // Basic path traversal protection
+    const safeFilename = path.basename(filename);
+    const filepath = path.join('uploads/', safeFilename);
+
+    if (!fs.existsSync(filepath)) {
+        return res.status(404).json({ error: 'File not found' });
+    }
+
+    fs.unlink(filepath, (err) => {
+        if (err) {
+            console.error('Error deleting file:', err);
+            return res.status(500).json({ error: 'Unable to delete file' });
+        }
+        res.json({ message: 'File deleted successfully' });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
