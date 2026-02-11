@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Uploaded Documents</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #EB4D4B;
+            --text-color: #333;
+            --bg-color: #F3F4F6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 2rem;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item:hover {
+            background-color: #F9FAFB;
+        }
+
+        .file-name {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-actions a {
+            text-decoration: none;
+            color: white;
+            background-color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+
+        .file-actions a:hover {
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .refresh-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            margin-left: auto;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-actions">
+            <h1><i class="fa-solid fa-folder-open"></i> Uploaded Documents</h1>
+            <button onclick="loadFiles()" class="refresh-btn"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+        </div>
+
+        <ul id="file-list" class="file-list">
+            <!-- Files will be loaded here -->
+        </ul>
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <i class="fa-regular fa-folder-open" style="font-size: 3rem; margin-bottom: 1rem; color: #ddd;"></i>
+            <p>No files uploaded yet.</p>
+        </div>
+    </div>
+
+    <script>
+        function loadFiles() {
+            fetch('/files')
+                .then(response => response.json())
+                .then(files => {
+                    const list = document.getElementById('file-list');
+                    const empty = document.getElementById('empty-state');
+                    list.innerHTML = '';
+
+                    if (files.length === 0) {
+                        empty.style.display = 'block';
+                    } else {
+                        empty.style.display = 'none';
+                        files.forEach(file => {
+                            const li = document.createElement('li');
+                            li.className = 'file-item';
+                            li.innerHTML = `
+                                <div class="file-name">
+                                    <i class="fa-regular fa-file"></i> ${file}
+                                </div>
+                                <div class="file-actions">
+                                    <a href="/uploads/${file}" download target="_blank"><i class="fa-solid fa-download"></i> Download</a>
+                                </div>
+                            `;
+                            list.appendChild(li);
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading files:', err);
+                    document.getElementById('file-list').innerHTML = '<p style="color: red; text-align: center;">Error loading files.</p>';
+                });
+        }
+
+        // Load on start
+        loadFiles();
+    </script>
+</body>
+
+</html>

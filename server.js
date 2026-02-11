@@ -40,6 +40,21 @@ app.post('/upload', upload.single('identity_doc'), (req, res) => {
     res.json({ message: 'File uploaded successfully', filename: req.file.filename });
 });
 
+// List files endpoint
+app.get('/files', (req, res) => {
+    const uploadDir = 'uploads/';
+    if (!fs.existsSync(uploadDir)) {
+        return res.json([]);
+    }
+
+    fs.readdir(uploadDir, (err, files) => {
+        if (err) {
+            return res.status(500).json({ error: 'Unable to scan directory' });
+        }
+        res.json(files);
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
