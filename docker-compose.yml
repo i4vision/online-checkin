@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    image: online-checkin-form
+    container_name: online_checkin
+    ports:
+      - "2234:80"
+    restart: always
