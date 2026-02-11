@@ -337,14 +337,9 @@ function populateDateDropdowns() {
 }
 
 function initializeTimeInputs() {
-    // Convert text inputs with existing values to time inputs or formatted text
-    // The user wants a pop-up. HTML5 <input type="time"> gives a pop-up picker.
-    // Let's replace the type="text" with type="time" but keep the values formatted
-
     document.querySelectorAll('.time-input input').forEach(input => {
         input.type = 'time';
         // HTML5 time input expects HH:MM format (24h)
-        // Convert "03:00 PM" -> "15:00"
         if (input.value.includes('PM')) {
             let [time, modifier] = input.value.split(' ');
             let [hours, minutes] = time.split(':');
@@ -358,13 +353,29 @@ function initializeTimeInputs() {
             input.value = `${hours.toString().padStart(2, '0')}:${minutes}`;
         }
 
-        // Add click listener to icon to trigger input
+        // Make the whole input clickable to show picker
+        input.style.cursor = 'pointer';
+        input.addEventListener('click', (e) => {
+            if ('showPicker' in HTMLInputElement.prototype) {
+                try {
+                    input.showPicker();
+                } catch (err) {
+                    // Fallback or ignore if already open/not supported
+                    console.log('Error showing picker:', err);
+                }
+            }
+        });
+
+        // Also handle the icon if it exists (though input click now covers it mostly)
         const icon = input.nextElementSibling;
         if (icon) {
             icon.style.cursor = 'pointer';
-            icon.style.pointerEvents = 'auto'; // Re-enable pointer events
             icon.onclick = () => {
-                input.showPicker ? input.showPicker() : input.focus();
+                if ('showPicker' in HTMLInputElement.prototype) {
+                    input.showPicker();
+                } else {
+                    input.focus();
+                }
             };
         }
     });

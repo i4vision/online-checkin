@@ -424,6 +424,23 @@ canvas {
     display: none;
 }
 
+/* Hide the default time picker indicator as we make the whole input clickable */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+input[type="time"] {
+    position: relative;
+}
+
 .custom-checkbox {
     width: 20px;
     height: 20px;
